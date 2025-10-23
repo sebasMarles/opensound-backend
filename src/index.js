@@ -40,7 +40,7 @@ app.get("/health", (_, res) =>
 app.use("/auth", authRoutes)
 
 app.use((req, res) => {
-  res.status(404).json({ message: "Ruta no encontrada" })
+  res.status(404).json({ message: "Prueba" })
 })
 
 app.use((err, req, res, next) => {
