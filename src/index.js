@@ -6,6 +6,10 @@ const morgan = require("morgan")
 
 const { connectDB } = require("./db")
 const authRoutes = require("./routes/auth")
+const adminRoutes = require("./routes/admin")
+const playlistRoutes = require("./routes/playlists")
+const { verifyToken } = require("./middleware/auth")
+const { requireAdmin } = require("./middleware/authorize")
 
 const app = express()
 
@@ -39,8 +43,12 @@ app.get("/health", (_, res) =>
 
 app.use("/auth", authRoutes)
 
+app.use("/playlists", verifyToken, playlistRoutes)
+
+app.use("/admin", verifyToken, requireAdmin, adminRoutes)
+
 app.use((req, res) => {
-  res.status(404).json({ message: "Prueba" })
+  res.status(404).json({ message: "Ruta no encontrada" })
 })
 
 app.use((err, req, res, next) => {

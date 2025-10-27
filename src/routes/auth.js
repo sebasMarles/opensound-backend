@@ -2,6 +2,7 @@ const express = require("express")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const User = require("../models/User")
+const Playlist = require("../models/Playlist")
 
 const router = express.Router()
 
@@ -39,8 +40,17 @@ router.post("/register", async (req, res) => {
       return res.status(409).json({ message: "El correo ya está registrado" })
     }
 
+    const role = "user" // Los usuarios normales siempre son "user"
     const passwordHash = await bcrypt.hash(password, 10)
-    const doc = await User.create({ name, email, passwordHash })
+    const doc = await User.create({ name, email, passwordHash, role })
+
+    await Playlist.create({
+      userId: doc._id,
+      name: "Me Gusta",
+      description: "Tus canciones favoritas",
+      isLiked: true,
+      songs: [],
+    })
 
     const token = signToken(doc)
     return res.status(201).json({
@@ -49,7 +59,7 @@ router.post("/register", async (req, res) => {
         id: doc._id.toString(),
         email: doc.email,
         name: doc.name || doc.email.split("@")[0],
-        role: doc.role || "user",
+        role: doc.role,
       },
     })
   } catch (err) {
